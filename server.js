@@ -14,9 +14,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const signUpRouter = require("./routers/signup");
+const signUpRouter = require("./routers/signUpRouter");
+const loginRouter = require("./routers/loginRouter");
 
 app.use("/signup", signUpRouter);
+app.use("/login", loginRouter);
 
 app.get("/", (req, res) => {
   res.render("index");
