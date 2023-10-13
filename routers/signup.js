@@ -6,10 +6,9 @@ router.get("/", function (req, res) {
   res.render("signup");
 });
 
-router.post("/authenticate", function (req, res) {
+router.post("/", function (req, res) {
   console.log(req.body);
-  const username = req.body.username;
-  res.send(username);
+  res.send("POST request to the homepage");
 });
 
 module.exports = router;
