@@ -5,7 +5,7 @@ const _credentialInvalid = (id, msg) => {
   const inputContainer = getElement(id);
   inputContainer.classList.remove("ring-gray-300");
   inputContainer.classList.add("ring-red-500");
-  invalidElement.classList.remove("invisible");
+  invalidElement.classList.remove("hidden");
   invalidElement.innerText = msg;
   return false;
 };
@@ -16,7 +16,7 @@ const _credentialValid = (id) => {
   inputContainer.classList.remove("ring-gray-300");
   inputContainer.classList.remove("ring-red-500");
   inputContainer.classList.add("ring-green-500");
-  invalidElement.classList.add("invisible");
+  invalidElement.classList.add("hidden");
   return true;
 };
 
@@ -68,7 +68,7 @@ const validatePassword = (password) => {
   return _credentialValid("password");
 };
 
-const login = () => {
+const validateCredentials = () => {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
   const email = document.getElementById("email").value;
