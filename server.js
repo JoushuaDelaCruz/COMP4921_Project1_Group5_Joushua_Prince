@@ -16,12 +16,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const signUpRouter = require("./routers/signUpRouter");
 const loginRouter = require("./routers/loginRouter");
+const homeRouter = require("./routers/homeRouter");
+const postRouter = require("./routers/postRouter");
 
 app.use("/signup", signUpRouter);
 app.use("/login", loginRouter);
+app.use("/home", homeRouter);
+app.use("/post", postRouter);
 
 app.get("/", (req, res) => {
-  res.render("index");
+  res.redirect("/home");
 });
 
 app.get("*", (req, res) => {
