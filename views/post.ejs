@@ -1,0 +1,20 @@
+<%- include("templates/header", {title: "Create a post" })%>
+<%- include("templates/navbar")%>
+<main class="background pt-16 flex justify-center gap-3">
+    <section class="w-1/2">
+        <h1 class="text-xl text-white font-medium px-4">Create a post</h1>
+        <hr class="h-px bg-cyan-200 border-0 dark:bg-cyan-700 my-8">
+        <div class="bg-white flex flex-col p-5 gap-2">
+            <div class="flex flex-row">
+                <textarea type="text" 
+                class="h-9 border-gray-200 border-y-2 border-l-2 px-3 py-1 rounded-l-md flex-1 resize-none overflow-hidden text-sm align-middle" id="title-form" placeholder="Write a title" maxlength="300"></textarea>
+                <div class="h-9 border-gray-200 border-y-2 border-r-2 px-3 rounded-r-md flex justify-center content-center flex-wrap text-xs font-medium text-blue-800" id="title-counter">0/300</div>
+            </div>
+            <textarea class="border-gray-200 border-2" name="" id="" cols="30" rows="10"></textarea>
+        </div>  
+    </section>
+    <section class="w-1/4">
+    </section>
+</main>
+<script src="/js/postListener.js"> </script>
+<%- include("templates/footer") %>
