@@ -4,6 +4,6 @@
 
 @layer components {
     .background {
-        @apply bg-gradient-to-b from-green-400 via-cyan-400 to-blue-500 h-screen w-screen
+        @apply bg-gradient-to-b from-green-400 via-cyan-400 to-blue-500 min-h-screen w-screen
     }
 }
