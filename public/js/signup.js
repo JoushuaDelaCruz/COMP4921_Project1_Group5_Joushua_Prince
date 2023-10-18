@@ -20,18 +20,32 @@ const _credentialValid = (id) => {
   return true;
 };
 
-const validateUsername = (username) => {
+const validateUsername = async (username) => {
   if (!username) {
     return _credentialInvalid("username", "Please enter a valid username.");
   }
-  return _credentialValid("username");
+  const isExist = await axios
+    .post("/signup/isUsernameExist", { username: username })
+    .then((res) => res.data);
+  if (isExist) {
+    return _credentialInvalid("username", "Username already exists.");
+  } else {
+    return _credentialValid("username");
+  }
 };
 
-const validateEmail = (email) => {
+const validateEmail = async (email) => {
   if (!email && !email.includes("@")) {
     return _credentialInvalid("email", "Please enter a valid email.");
   }
-  return _credentialValid("email");
+  const isExist = await axios
+    .post("/signup/isEmailExist", { email: email })
+    .then((res) => res.data);
+  if (isExist) {
+    return _credentialInvalid("email", "Email already exists.");
+  } else {
+    return _credentialValid("email");
+  }
 };
 
 const validatePassword = (password) => {
@@ -68,14 +82,14 @@ const validatePassword = (password) => {
   return _credentialValid("password");
 };
 
-const validateCredentials = () => {
+const validateCredentials = async () => {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
   const email = document.getElementById("email").value;
 
   const isPasswordValid = validatePassword(password);
-  const isUsernameValid = validateUsername(username);
-  const isEmailValid = validateEmail(email);
+  const isUsernameValid = await validateUsername(username);
+  const isEmailValid = await validateEmail(email);
 
   if (isPasswordValid && isUsernameValid && isEmailValid) {
     const credentials = {
@@ -83,8 +97,12 @@ const validateCredentials = () => {
       password,
       email,
     };
-    axios.post("/signup", credentials).then((res) => {
-      console.log(res);
+    await axios.post("/signup", credentials).then((res) => {
+      if (res.data) {
+        window.location.href = "/login";
+      } else {
+        alert("Error while creating user");
+      }
     });
   }
   return;
