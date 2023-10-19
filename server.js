@@ -2,12 +2,19 @@ require("./utils");
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 const path = require("path");
 const PORT = process.env.PORT || 5000;
 const app = express();
+const corsOptions = {
+  origin: "*",
+  credentials: true,
+  optionSuccessStatus: 200,
+};
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: false }));
