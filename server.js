@@ -8,7 +8,6 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 const MongoStore = require("connect-mongo");
 const cors = require("cors");
-const path = require("path");
 const corsOptions = {
   origin: [process.env.CLIENT_LOCALHOST],
   methods: ["GET", "POST"],
@@ -55,11 +54,11 @@ app.use(
   })
 );
 
-const signUpRouter = require("./routers/signUpRouter");
+const userRouter = require("./routers/userRouter");
 const loginRouter = require("./routers/loginRouter");
 const postRouter = require("./routers/postRouter");
 
-app.use("/signup", signUpRouter);
+app.use("/user", userRouter);
 app.use("/login", loginRouter);
 app.use("/post", postRouter);
 
