@@ -7,9 +7,18 @@ const path = require("path");
 const PORT = process.env.PORT || 5000;
 const app = express();
 const MongoStore = require("connect-mongo");
+const cors = require("cors");
+const path = require("path");
+const corsOptions = {
+  origin: [process.env.CLIENT_LOCALHOST],
+  methods: ["GET", "POST"],
+  credentials: true,
+  optionSuccessStatus: 200,
+};
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: false }));
@@ -56,6 +65,10 @@ app.use("/post", postRouter);
 
 app.get("/", (req, res) => {
   res.redirect("/home");
+});
+
+app.get("/api", (req, res) => {
+  res.send("API");
 });
 
 app.get("*", (req, res) => {
