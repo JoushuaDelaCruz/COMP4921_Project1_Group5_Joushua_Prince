@@ -32,7 +32,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.post("/isUsernameExist", async (req, res) => {
+router.get("/isUsernameExist", async (req, res) => {
   const username = req.body.username;
   try {
     const isExist = await db_users.isUsernameExist(username);
@@ -43,7 +43,7 @@ router.post("/isUsernameExist", async (req, res) => {
   }
 });
 
-router.post("/isEmailExist", async (req, res) => {
+router.get("/isEmailExist", async (req, res) => {
   const email = req.body.email;
   try {
     const isExist = await db_users.isEmailExist(email);
