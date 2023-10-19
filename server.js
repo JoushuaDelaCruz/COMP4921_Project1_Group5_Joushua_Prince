@@ -28,6 +28,10 @@ app.get("/", (req, res) => {
   res.redirect("/home");
 });
 
+app.get("/api", (req, res) => {
+  res.send("API");
+});
+
 app.get("*", (req, res) => {
   res.status(404).send("404 Not Found");
 });
