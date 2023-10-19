@@ -29,7 +29,6 @@ const isUsernameExist = async (username) => {
   const params = { username: username };
   try {
     const result = await database.query(query, params);
-    console.log("result:", result);
     return result[0].length > 0;
   } catch (error) {
     console.error("Error while checking username:", error);
@@ -46,7 +45,6 @@ const isEmailExist = async (email) => {
   const params = { email: email };
   try {
     const result = await database.query(query, params);
-    console.log("result:", result);
     return result[0].length > 0;
   } catch (error) {
     console.error("Error while checking email:", error);
