@@ -5,11 +5,7 @@ const saltRounds = 12;
 const db_users = include("database/db_users");
 const cloudinary = include("database/modules/cloudinary");
 
-router.get("/", async (req, res) => {
-  res.render("signup");
-});
-
-router.post("/", async (req, res) => {
+router.post("/create", async (req, res) => {
   const username = req.body.username;
   const email = req.body.email;
   const password = req.body.password;
@@ -32,8 +28,8 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/isUsernameExist", async (req, res) => {
-  const username = req.body.username;
+router.post("/isUsernameExist", async (req, res) => {
+  const username = req.body.data.username;
   try {
     const isExist = await db_users.isUsernameExist(username);
     res.send(isExist);
@@ -43,8 +39,8 @@ router.get("/isUsernameExist", async (req, res) => {
   }
 });
 
-router.get("/isEmailExist", async (req, res) => {
-  const email = req.body.email;
+router.post("/isEmailExist", async (req, res) => {
+  const email = req.body.data.email;
   try {
     const isExist = await db_users.isEmailExist(email);
     res.send(isExist);
