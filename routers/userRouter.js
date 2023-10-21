@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 12;
 const db_users = include("database/db_users");
 const cloudinary = include("database/modules/cloudinary");
+const expireTime = 60 * 60 * 1000; //expires after 1 hr (hours * minutes * seconds * millis)
 
 router.post("/create", async (req, res) => {
   const username = req.body.username;
@@ -28,8 +29,31 @@ router.post("/create", async (req, res) => {
   }
 });
 
+router.post("/login", async (req, res) => {
+  const email = req.body.data.email;
+  const password = req.body.data.password;
+  const user = await db_users.getUser(email);
+  if (!user) {
+    res.send(null);
+    return;
+  }
+  if (bcrypt.compareSync(password, user.password)) {
+    req.session.authenticated = true;
+    req.session.cookie.maxAge = expireTime;
+    console.log(req.sessionID);
+    res.send(req.sessionID);
+    return;
+  }
+  res.send(null);
+  return;
+});
+
 router.post("/isUsernameExist", async (req, res) => {
-  const username = req.body.data.username;
+  const username = req.body.data;
+  if (!username) {
+    res.send(false);
+    return;
+  }
   try {
     const isExist = await db_users.isUsernameExist(username);
     res.send(isExist);
@@ -40,7 +64,11 @@ router.post("/isUsernameExist", async (req, res) => {
 });
 
 router.post("/isEmailExist", async (req, res) => {
-  const email = req.body.data.email;
+  const email = req.body.data;
+  if (!email) {
+    res.send(false);
+    return;
+  }
   try {
     const isExist = await db_users.isEmailExist(email);
     res.send(isExist);
