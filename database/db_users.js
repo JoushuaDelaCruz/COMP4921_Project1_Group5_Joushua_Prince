@@ -22,7 +22,7 @@ const create = async (user) => {
 
 const getUser = async (email) => {
   const query = `
-    SELECT user_id
+    SELECT user_id, password
     FROM users
     WHERE email = :email
   `;
