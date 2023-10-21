@@ -38,7 +38,6 @@ router.post("/login", async (req, res) => {
   if (bcrypt.compareSync(password, user.password)) {
     req.session.authenticated = true;
     req.session.cookie.maxAge = expireTime;
-    console.log(req.sessionID);
     res.send(req.sessionID);
     return;
   }
