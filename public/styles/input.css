@@ -1,9 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer components {
-    .background {
-        @apply bg-gradient-to-b from-green-400 via-cyan-400 to-blue-500 min-h-screen w-screen
-    }
-}
