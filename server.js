@@ -48,11 +48,9 @@ app.use(
 );
 
 const userRouter = require("./routers/userRouter");
-const loginRouter = require("./routers/loginRouter");
 const postRouter = require("./routers/postRouter");
 
 app.use("/user", userRouter);
-app.use("/login", loginRouter);
 app.use("/post", postRouter);
 
 app.get("/", (req, res) => {
