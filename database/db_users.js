@@ -20,6 +20,22 @@ const create = async (user) => {
   }
 };
 
+const getUser = async (email) => {
+  const query = `
+    SELECT user_id
+    FROM users
+    WHERE email = :email
+  `;
+  const params = { email: email };
+  try {
+    const result = await database.query(query, params);
+    return result[0][0];
+  } catch (error) {
+    console.error("Error while getting user:", error);
+    return null;
+  }
+};
+
 const isUsernameExist = async (username) => {
   const query = `
         SELECT username
@@ -52,4 +68,4 @@ const isEmailExist = async (email) => {
   }
 };
 
-module.exports = { create, isUsernameExist, isEmailExist };
+module.exports = { create, isUsernameExist, isEmailExist, getUser };
