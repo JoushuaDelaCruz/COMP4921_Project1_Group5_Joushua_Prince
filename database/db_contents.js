@@ -13,7 +13,6 @@ const create = async (post) => {
   };
   try {
     const result = await database.query(query, params);
-    console.log(result[0]);
     return result[0].insertId;
   } catch (err) {
     console.log(err);
