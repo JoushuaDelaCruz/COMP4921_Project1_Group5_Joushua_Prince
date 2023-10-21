@@ -19,11 +19,9 @@ router.post("/create", async (req, res) => {
     image: image,
   });
   if (success) {
-    console.log("User created successfully");
     res.send(true);
     return;
   } else {
-    console.error("Error while creating user");
     res.send(false);
     return;
   }
