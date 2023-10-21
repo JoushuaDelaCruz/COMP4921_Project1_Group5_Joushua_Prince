@@ -20,7 +20,23 @@ const create = async (user) => {
   }
 };
 
-const getUser = async (email) => {
+const getUserById = async (id) => {
+  const query = `
+    SELECT username, profile_img
+    FROM users
+    WHERE user_id = :id
+  `;
+  const params = { id: id };
+  try {
+    const result = await database.query(query, params);
+    return result[0][0];
+  } catch (error) {
+    console.error("Error while getting user:", error);
+    return null;
+  }
+};
+
+const getUserByEmail = async (email) => {
   const query = `
     SELECT user_id, password
     FROM users
@@ -68,4 +84,10 @@ const isEmailExist = async (email) => {
   }
 };
 
-module.exports = { create, isUsernameExist, isEmailExist, getUser };
+module.exports = {
+  create,
+  isUsernameExist,
+  isEmailExist,
+  getUserByEmail,
+  getUserById,
+};

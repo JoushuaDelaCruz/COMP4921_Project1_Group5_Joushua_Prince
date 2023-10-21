@@ -6,10 +6,47 @@ const db_users = include("database/db_users");
 const cloudinary = include("database/modules/cloudinary");
 const expireTime = 60 * 60 * 1000; //expires after 1 hr (hours * minutes * seconds * millis)
 
+router.post("/", async (req, res) => {
+  const sessionID = req.body.data;
+  req.sessionStore.get(sessionID, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.send(null);
+      return;
+    }
+    if (!session) {
+      res.send(null);
+      return;
+    }
+    if (!session.authenticated) {
+      res.send(null);
+      return;
+    }
+    const user = await db_users.getUserById(session.user);
+    res.send(user);
+  });
+});
+
+router.post("/checkSession", async (req, res) => {
+  const sessionID = req.body.data;
+  req.sessionStore.get(sessionID, (err, session) => {
+    if (err) {
+      console.error("Error while checking session:", err);
+      res.send(false);
+      return;
+    }
+    if (!session) {
+      res.send(false);
+      return;
+    }
+    res.send(session.authenticated);
+  });
+});
+
 router.post("/create", async (req, res) => {
-  const username = req.body.username;
-  const email = req.body.email;
-  const password = req.body.password;
+  const username = req.body.data.username;
+  const email = req.body.data.email;
+  const password = req.body.data.password;
   const image = await cloudinary.getRandomImage();
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   const success = await db_users.create({
@@ -30,14 +67,16 @@ router.post("/create", async (req, res) => {
 router.post("/login", async (req, res) => {
   const email = req.body.data.email;
   const password = req.body.data.password;
-  const user = await db_users.getUser(email);
+  const user = await db_users.getUserByEmail(email);
   if (!user) {
     res.send(null);
     return;
   }
   if (bcrypt.compareSync(password, user.password)) {
+    req.session.user = user.user_id;
     req.session.authenticated = true;
     req.session.cookie.maxAge = expireTime;
+    console.log("Session created:", req.sessionID);
     res.send(req.sessionID);
     return;
   }

@@ -8,15 +8,31 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  console.log(req.body);
-  const post = {
-    user_id: 1,
-    content: req.body.content,
-    parent_id: null,
-    title: req.body.title,
-  };
-  const successful = await db_post.create(post);
-  res.send(successful);
+  const sessionID = req.body.data.sessionID;
+  req.sessionStore.get(sessionID, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.send(false);
+      return;
+    }
+    if (!session) {
+      res.send(false);
+      return;
+    }
+    if (!session.authenticated) {
+      res.send(false);
+      return;
+    }
+    const post = {
+      user_id: session.user,
+      title: req.body.data.title,
+      content: req.body.data.content,
+      parent_id: null,
+    };
+    const success = await db_post.create(post);
+    res.send(success);
+    return;
+  });
 });
 
 module.exports = router;

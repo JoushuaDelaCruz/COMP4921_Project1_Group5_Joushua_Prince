@@ -22,22 +22,27 @@ const create = async (post) => {
 
 const getPosts = async () => {
   const query = `
+  WITH RECURSIVE cte_posts AS 
+	  (SELECT content_id, user_id, content, date_created, content_id AS parent
+	  FROM contents WHERE parent_id IS NULL
+      UNION
+      SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
+      FROM cte_posts cte
+      JOIN contents c ON cte.content_id = c.parent_id
+    )
   SELECT 
-	content_id, 
-    u.user_id, 
-    num_views, 
-    username, 
-    profile_img, 
-    post_id, 
-    title, 
-    content, 
-    date_created, 
-    COUNT(vote_id) as num_votes
-  FROM contents
-  JOIN posts USING (content_id)
-  JOIN users AS u USING (user_id)
-  LEFT JOIN votes USING (content_id)
-  GROUP BY content_id
+    cte.user_id,
+      cte.parent,
+      profile_img,
+      title,
+      date_created,
+      content,
+      COUNT(*) - 1 AS num_comments
+  FROM cte_posts cte
+  JOIN users USING (user_id)
+  JOIN posts p ON p.content_id = cte.parent
+  GROUP BY parent
+  ORDER BY date_created DESC
   `;
   try {
     const result = await database.query(query);
