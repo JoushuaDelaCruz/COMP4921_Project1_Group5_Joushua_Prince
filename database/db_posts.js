@@ -31,7 +31,8 @@ const getPosts = async () => {
       JOIN contents c ON cte.content_id = c.parent_id
     )
   SELECT 
-    cte.user_id,
+      cte.content_id,
+      cte.user_id,
       cte.parent,
       profile_img,
       title,
