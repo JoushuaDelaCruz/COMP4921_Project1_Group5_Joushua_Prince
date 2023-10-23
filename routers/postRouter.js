@@ -7,6 +7,12 @@ router.get("/", async (req, res) => {
   res.send(posts);
 });
 
+router.get("/:post_id", async (req, res) => {
+  const post_id = req.params.post_id;
+  const post = await db_post.getPost(post_id);
+  res.send(post);
+});
+
 router.post("/create", async (req, res) => {
   const sessionID = req.body.data.sessionID;
   req.sessionStore.get(sessionID, async (err, session) => {
