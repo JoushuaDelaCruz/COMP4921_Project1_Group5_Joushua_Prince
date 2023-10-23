@@ -76,7 +76,6 @@ router.post("/login", async (req, res) => {
     req.session.user = user.user_id;
     req.session.authenticated = true;
     req.session.cookie.maxAge = expireTime;
-    console.log("Session created:", req.sessionID);
     res.send(req.sessionID);
     return;
   }
