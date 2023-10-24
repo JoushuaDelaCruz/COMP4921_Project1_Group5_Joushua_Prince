@@ -38,7 +38,11 @@ const getUserById = async (id) => {
 
 const getUserByEmail = async (email) => {
   const query = `
-    SELECT user_id, password
+    SELECT 
+      user_id, 
+      username,
+      password,
+      profile_img
     FROM users
     WHERE email = :email
   `;
