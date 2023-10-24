@@ -25,7 +25,7 @@ const getPost = async (post_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
 	( SELECT content_id, user_id, content, date_created, content_id AS parent
-	  FROM contents WHERE parent_id IS NULL
+	  FROM contents WHERE content_id = :post_id
       UNION
       SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
       FROM cte_posts cte
@@ -42,8 +42,7 @@ const getPost = async (post_id) => {
     COUNT(*) - 1 AS num_comments
   FROM cte_posts cte
   JOIN users USING (user_id)
-  JOIN posts p ON p.content_id = cte.parent
-  WHERE cte.content_id = :post_id
+  LEFT JOIN posts p ON p.content_id = cte.parent
   GROUP BY parent;
   `;
   const params = {
@@ -79,7 +78,7 @@ const getPosts = async () => {
       COUNT(*) - 1 AS num_comments
   FROM cte_posts cte
   JOIN users USING (user_id)
-  JOIN posts p ON p.content_id = cte.parent
+  LEFT JOIN posts p ON p.content_id = cte.parent
   GROUP BY parent
   ORDER BY date_created DESC
   `;
