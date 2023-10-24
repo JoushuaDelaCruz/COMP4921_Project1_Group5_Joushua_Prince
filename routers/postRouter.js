@@ -33,6 +33,7 @@ router.post("/create", async (req, res) => {
       user_id: session.user,
       title: req.body.data.title,
       content: req.body.data.content,
+      date_created: new Date(),
       parent_id: null,
     };
     const success = await db_post.create(post);
