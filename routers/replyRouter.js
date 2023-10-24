@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const db_replies = include("database/db_replies");
 const db_contents = include("database/db_contents");
 
 router.post("/create", async (req, res) => {
-  console.log(req.body.data);
   const sessionID = req.body.data.sessionID;
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
@@ -24,12 +22,16 @@ router.post("/create", async (req, res) => {
       user_id: session.user,
       content: req.body.data.content,
       parent_id: req.body.data.parent_id,
+      date_created: new Date(),
     };
     const post = await db_contents.create(reply);
-    res.send(post);
+    if (!post) {
+      res.send(null);
+      return;
+    }
+    res.send(reply);
     return;
   });
-  res.send(null);
 });
 
 module.exports = router;
