@@ -9,7 +9,7 @@ const create = async (post) => {
     user_id: post.user_id,
     content: post.content,
     parent_id: post.parent_id,
-    date_created: new Date(),
+    date_created: post.date_created,
   };
   try {
     const result = await database.query(query, params);
