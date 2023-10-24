@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
+const session = require("express-session");
 const saltRounds = 12;
 const db_users = include("database/db_users");
 const cloudinary = include("database/modules/cloudinary");
@@ -22,7 +23,10 @@ router.post("/", async (req, res) => {
       res.send(null);
       return;
     }
-    const user = await db_users.getUserById(session.user);
+    const user = {
+      username: session.username,
+      profile_img: session.profile_img,
+    };
     res.send(user);
   });
 });
@@ -75,6 +79,8 @@ router.post("/login", async (req, res) => {
   if (bcrypt.compareSync(password, user.password)) {
     req.session.user = user.user_id;
     req.session.authenticated = true;
+    req.session.username = user.username;
+    req.session.profile_img = user.profile_img;
     req.session.cookie.maxAge = expireTime;
     res.send(req.sessionID);
     return;
