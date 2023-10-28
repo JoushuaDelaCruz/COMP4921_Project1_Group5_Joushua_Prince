@@ -2,6 +2,12 @@ const express = require("express");
 const router = express.Router();
 const db_contents = include("database/db_contents");
 
+router.get("/:post_id", async (req, res) => {
+  const post_id = req.params.post_id;
+  const replies = await db_contents.getPostReplies(post_id);
+  res.send(replies);
+});
+
 router.post("/create", async (req, res) => {
   const sessionID = req.body.data.sessionID;
   req.sessionStore.get(sessionID, async (err, session) => {
@@ -20,6 +26,8 @@ router.post("/create", async (req, res) => {
     }
     const reply = {
       user_id: session.user,
+      username: session.username,
+      profile_img: session.profile_img,
       content: req.body.data.content,
       parent_id: req.body.data.parent_id,
       date_created: new Date(),
