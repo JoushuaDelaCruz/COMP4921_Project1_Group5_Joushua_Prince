@@ -119,4 +119,16 @@ router.post("/isEmailExist", async (req, res) => {
   }
 });
 
+router.get("/logout", async (req, res) => {
+  const sessionID = req.body.data;
+  req.sessionStore.destroy(sessionID, (err) => {
+    if (err) {
+      console.error("Error while logging out:", err);
+      res.send(false);
+      return;
+    }
+    res.send(true);
+  });
+});
+
 module.exports = router;
