@@ -56,5 +56,9 @@ const getPostReplies = async (post_id) => {
     return null;
   }
 };
+// TODO...
+const search = async (text) => {
+  return null;
+};
 
-module.exports = { create, getPostReplies };
+module.exports = { create, getPostReplies, search };
