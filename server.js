@@ -50,10 +50,12 @@ app.use(
 const userRouter = require("./routers/userRouter");
 const postRouter = require("./routers/postRouter");
 const replyRouter = require("./routers/replyRouter");
+const searchRouter = require("./routers/searchRouter");
 
 app.use("/user", userRouter);
 app.use("/post", postRouter);
 app.use("/reply", replyRouter);
+app.use("/search", searchRouter);
 
 app.get("/", (req, res) => {
   res.redirect("/home");
