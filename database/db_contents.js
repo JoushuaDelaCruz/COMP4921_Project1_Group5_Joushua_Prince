@@ -20,4 +20,41 @@ const create = async (post) => {
   }
 };
 
-module.exports = { create };
+const getPostReplies = async (post_id) => {
+  const query = `
+  WITH RECURSIVE cte_posts AS 
+	( SELECT content_id, user_id, content, date_created, parent_id, content_id AS super_parent, 0 AS level
+	  FROM contents WHERE content_id = 6
+      UNION
+      SELECT c.content_id, c.user_id, c.content, c.date_created, c.parent_id, cte.super_parent, cte.level + 1
+      FROM cte_posts cte
+      JOIN contents c ON cte.content_id = c.parent_id
+    )
+  SELECT 
+    cte.content_id,
+    cte.user_id,
+    username,
+    profile_img,
+    title,
+    date_created,
+    content,
+    parent_id,
+    level
+  FROM cte_posts cte
+  JOIN users USING (user_id)
+  JOIN posts p ON p.content_id = cte.super_parent
+  WHERE level > 0;
+  `;
+  const params = {
+    post_id: post_id,
+  };
+  try {
+    const replies = await database.query(query, params);
+    return replies[0];
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
+module.exports = { create, getPostReplies };
