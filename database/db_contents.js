@@ -24,7 +24,7 @@ const getPostReplies = async (post_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
 	( SELECT content_id, user_id, content, date_created, parent_id, content_id AS super_parent, 0 AS level
-	  FROM contents WHERE content_id = 6
+	  FROM contents WHERE content_id = :post_id
       UNION
       SELECT c.content_id, c.user_id, c.content, c.date_created, c.parent_id, cte.super_parent, cte.level + 1
       FROM cte_posts cte
