@@ -7,6 +7,22 @@ router.get("/", async (req, res) => {
   res.send(posts);
 });
 
+router.get("/:session", async (req, res) => {
+  req.sessionStore.get(req.params.session, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.send(null);
+      return;
+    }
+    if (!session || !session.authenticated) {
+      res.send(null);
+      return;
+    }
+    const posts = await db_post.getPostsAndUserVotes(session.user);
+    res.send(posts);
+  });
+});
+
 router.get("/:post_id", async (req, res) => {
   const post_id = req.params.post_id;
   const post = await db_post.getPost(post_id);
