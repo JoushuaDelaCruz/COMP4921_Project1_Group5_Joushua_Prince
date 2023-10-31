@@ -51,11 +51,13 @@ const userRouter = require("./routers/userRouter");
 const postRouter = require("./routers/postRouter");
 const replyRouter = require("./routers/replyRouter");
 const searchRouter = require("./routers/searchRouter");
+const votesRouter = require("./routers/votesRouter");
 
 app.use("/user", userRouter);
 app.use("/post", postRouter);
 app.use("/reply", replyRouter);
 app.use("/search", searchRouter);
+app.use("/votes", votesRouter);
 
 app.get("/", (req, res) => {
   res.redirect("/home");
