@@ -26,6 +26,7 @@ router.post("/", async (req, res) => {
     const user = {
       username: session.username,
       profile_img: session.profile_img,
+      id: session.user,
     };
     res.send(user);
   });
