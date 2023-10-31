@@ -3,11 +3,16 @@ const database = include("mySQLDatabaseConnection");
 
 const searchComments = async (keyword) => {
     const query = `
-    SELECT text, 
-    MATCH(text) AGAINST (:keyword IN BOOLEAN MODE) as score
-FROM comments
-WHERE MATCH(text) AGAINST (:keyword IN BOOLEAN MODE)
-ORDER BY score DESC;
+    SELECT 
+  text, 
+  MATCH(text) AGAINST (: keyword IN BOOLEAN MODE) as score 
+FROM 
+  comments 
+WHERE 
+  MATCH(text) AGAINST (: keyword IN BOOLEAN MODE) 
+ORDER BY 
+  score DESC;
+
 
           
     `;
