@@ -20,4 +20,4 @@ const toggle = (vote_id, vote_value) => {
   }
 };
 
-module.exports = { upVote, unvote, downVote, toggle };
+module.exports = { toggle };
