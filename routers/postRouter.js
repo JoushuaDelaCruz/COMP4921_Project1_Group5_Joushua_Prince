@@ -23,10 +23,28 @@ router.get("/:session", async (req, res) => {
   });
 });
 
-router.get("/:post_id", async (req, res) => {
+router.get("/getPost/:post_id", async (req, res) => {
   const post_id = req.params.post_id;
   const post = await db_post.getPost(post_id);
   res.send(post);
+});
+
+router.get("/getPost/:post_id/:session", async (req, res) => {
+  const post_id = req.params.post_id;
+  const sessionID = req.params.session;
+  req.sessionStore.get(sessionID, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.send(null);
+      return;
+    }
+    if (!session || !session.authenticated) {
+      res.send(null);
+      return;
+    }
+    const post = await db_post.getPostAndUserVotes(post_id, session.user);
+    res.send(post);
+  });
 });
 
 router.post("/create", async (req, res) => {
