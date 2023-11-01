@@ -41,4 +41,21 @@ const record = async (content_id, user_id, is_up_vote) => {
   }
 };
 
-module.exports = { toggle, record };
+const unVote = async (vote_id) => {
+  const query = `
+    DELETE FROM votes
+    WHERE vote_id = :vote_id
+  `;
+  const params = {
+    vote_id: vote_id,
+  };
+  try {
+    await database.query(query, params);
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+};
+
+module.exports = { toggle, record, unVote };
