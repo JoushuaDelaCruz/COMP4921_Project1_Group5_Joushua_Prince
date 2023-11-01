@@ -24,29 +24,91 @@ const create = async (post) => {
 const getPost = async (post_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
-	( SELECT content_id, user_id, content, date_created, content_id AS parent
-	  FROM contents WHERE content_id = :post_id
+  (
+      SELECT content_id, user_id, content, date_created, content_id AS parent
+      FROM contents 
+      WHERE content_id = :post_id
       UNION
       SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
       FROM cte_posts cte
       JOIN contents c ON cte.content_id = c.parent_id
-    )
+  ), vote_counts AS
+  (
+      SELECT SUM(v.value) AS num_votes, cte.content_id
+      FROM cte_posts cte
+      LEFT JOIN votes v ON cte.content_id = v.content_id
+      GROUP BY cte.content_id
+  )
   SELECT 
-    cte.content_id,
-    cte.user_id,
-    username,
-    profile_img,
-    title,
-    date_created,
-    content,
-    COUNT(*) - 1 AS num_comments
+      cte.content_id,
+      cte.user_id,
+      username,
+      profile_img,
+      title,
+      date_created,
+      content,
+      COUNT(*) - 1 AS num_comments,
+      IFNULL(v.num_votes, 0) AS num_votes
   FROM cte_posts cte
   JOIN users USING (user_id)
   LEFT JOIN posts p ON p.content_id = cte.parent
-  GROUP BY parent;
+  LEFT JOIN vote_counts v ON cte.content_id = v.content_id
+  GROUP BY cte.parent
+  ORDER BY date_created DESC;  
   `;
   const params = {
     post_id: post_id,
+  };
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+const getPostAndUserVotes = async (post_id, user_id) => {
+  const query = `
+  WITH RECURSIVE cte_posts AS 
+  (
+      SELECT content_id, user_id, content, date_created, content_id AS parent
+      FROM contents 
+      WHERE content_id = :post_id
+      UNION
+      SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
+      FROM cte_posts cte
+      JOIN contents c ON cte.content_id = c.parent_id
+  ), vote_counts AS
+  (
+      SELECT SUM(v.value) AS num_votes, cte.content_id
+      FROM cte_posts cte
+      LEFT JOIN votes v ON cte.content_id = v.content_id
+      GROUP BY cte.content_id
+  )
+  SELECT 
+      cte.content_id,
+      cte.user_id,
+      username,
+      profile_img,
+      title,
+      date_created,
+      content,
+      COUNT(*) - 1 AS num_comments,
+      IFNULL(vc.num_votes, 0) AS num_votes,
+      v.vote_id,
+      v.value
+  FROM cte_posts cte
+  JOIN users USING (user_id)
+  LEFT JOIN posts p ON p.content_id = cte.parent
+  LEFT JOIN vote_counts vc ON cte.content_id = vc.content_id
+  LEFT JOIN votes v ON cte.content_id = v.content_id AND v.user_id = :user_id
+  GROUP BY cte.parent
+  ORDER BY date_created DESC;
+  `;
+  const params = {
+    post_id: post_id,
+    user_id: user_id,
   };
   try {
     const result = await database.query(query, params);
@@ -157,4 +219,5 @@ module.exports = {
   getPosts,
   getPost,
   getPostsAndUserVotes,
+  getPostAndUserVotes,
 };
