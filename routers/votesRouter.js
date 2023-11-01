@@ -52,4 +52,26 @@ router.post("/record", async (req, res) => {
   });
 });
 
+router.post("/unVote", async (req, res) => {
+  const vote_id = req.body.data.vote_id;
+  const sessionID = req.body.data.sessionID;
+  req.sessionStore.get(sessionID, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.send(null);
+      return;
+    }
+    if (!session) {
+      res.send(null);
+      return;
+    }
+    if (!session.authenticated) {
+      res.send(null);
+      return;
+    }
+    const success = await db_votes.unVote(vote_id);
+    res.send(success);
+  });
+});
+
 module.exports = router;
