@@ -24,11 +24,17 @@ const getPostReplies = async (post_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
 	( SELECT content_id, user_id, content, date_created, parent_id, content_id AS super_parent, 0 AS level
-	  FROM contents WHERE content_id = :post_id
+	  FROM contents WHERE content_id = 6
       UNION
       SELECT c.content_id, c.user_id, c.content, c.date_created, c.parent_id, cte.super_parent, cte.level + 1
       FROM cte_posts cte
       JOIN contents c ON cte.content_id = c.parent_id
+    ), vote_counts AS 
+    (
+	  SELECT SUM(v.value) AS num_votes, cte.content_id
+      FROM cte_posts cte
+      LEFT JOIN votes v ON cte.content_id = v.content_id
+      GROUP BY cte.content_id
     )
   SELECT 
     cte.content_id,
@@ -39,10 +45,12 @@ const getPostReplies = async (post_id) => {
     date_created,
     content,
     parent_id,
+    IFNULL(vc.num_votes, 0) AS num_votes,
     level
   FROM cte_posts cte
   JOIN users USING (user_id)
   JOIN posts p ON p.content_id = cte.super_parent
+  LEFT JOIN vote_counts vc ON vc.content_id = cte.content_id
   WHERE level > 0;
   `;
   const params = {
