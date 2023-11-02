@@ -10,7 +10,7 @@ const MongoStore = require("connect-mongo");
 const cors = require("cors");
 const corsOptions = {
   origin: [process.env.CLIENT_LOCALHOST],
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "DELETE"],
   credentials: true,
   optionSuccessStatus: 200,
 };
