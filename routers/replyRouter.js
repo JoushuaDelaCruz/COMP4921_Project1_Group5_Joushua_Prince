@@ -8,6 +8,33 @@ router.get("/:post_id", async (req, res) => {
   res.send(replies);
 });
 
+router.get("/:post_id/:session_id", async (req, res) => {
+  const post_id = req.params.post_id;
+  const session_id = req.params.session_id;
+  req.sessionStore.get(session_id, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.send(null);
+      return;
+    }
+    if (!session) {
+      res.send(null);
+      return;
+    }
+    if (!session.authenticated) {
+      res.send(null);
+      return;
+    }
+    const user_id = session.user;
+    const replies = await db_contents.getPostRepliesAndUserVotes(
+      post_id,
+      user_id
+    );
+    res.send(replies);
+    return;
+  });
+});
+
 router.post("/create", async (req, res) => {
   const sessionID = req.body.data.sessionID;
   req.sessionStore.get(sessionID, async (err, session) => {
