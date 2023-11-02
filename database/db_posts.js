@@ -41,7 +41,6 @@ const getPost = async (post_id) => {
   )
   SELECT 
       cte.content_id,
-      cte.user_id,
       username,
       profile_img,
       title,
@@ -68,7 +67,7 @@ const getPost = async (post_id) => {
   }
 };
 
-const getPostAndUserVotes = async (post_id, user_id) => {
+const getPostUserAuth = async (post_id, user_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
   (
@@ -88,7 +87,6 @@ const getPostAndUserVotes = async (post_id, user_id) => {
   )
   SELECT 
       cte.content_id,
-      cte.user_id,
       username,
       profile_img,
       title,
@@ -97,7 +95,8 @@ const getPostAndUserVotes = async (post_id, user_id) => {
       COUNT(*) - 1 AS num_comments,
       IFNULL(vc.num_votes, 0) AS num_votes,
       v.vote_id,
-      v.value
+      v.value,
+      CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner
   FROM cte_posts cte
   JOIN users USING (user_id)
   LEFT JOIN posts p ON p.content_id = cte.parent
@@ -139,7 +138,6 @@ const getPosts = async () => {
   )
   SELECT 
       cte.content_id,
-      cte.user_id,
       username,
       profile_img,
       title,
@@ -163,7 +161,7 @@ const getPosts = async () => {
   }
 };
 
-const getPostsAndUserVotes = async (user_id) => {
+const getPostsUserAuth = async (user_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
   (
@@ -183,7 +181,6 @@ const getPostsAndUserVotes = async (user_id) => {
   )
   SELECT 
       cte.content_id,
-      cte.user_id,
       username,
       profile_img,
       title,
@@ -219,6 +216,6 @@ module.exports = {
   create,
   getPosts,
   getPost,
-  getPostsAndUserVotes,
-  getPostAndUserVotes,
+  getPostsUserAuth,
+  getPostUserAuth,
 };

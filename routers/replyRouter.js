@@ -26,10 +26,7 @@ router.get("/:post_id/:session_id", async (req, res) => {
       return;
     }
     const user_id = session.user;
-    const replies = await db_contents.getPostRepliesAndUserVotes(
-      post_id,
-      user_id
-    );
+    const replies = await db_contents.getPostRepliesUserAuth(post_id, user_id);
     res.send(replies);
     return;
   });

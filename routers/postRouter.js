@@ -18,7 +18,7 @@ router.get("/:session", async (req, res) => {
       res.send(null);
       return;
     }
-    const posts = await db_post.getPostsAndUserVotes(session.user);
+    const posts = await db_post.getPostsUserAuth(session.user);
     res.send(posts);
   });
 });
@@ -42,7 +42,7 @@ router.get("/getPost/:post_id/:session", async (req, res) => {
       res.send(null);
       return;
     }
-    const post = await db_post.getPostAndUserVotes(post_id, session.user);
+    const post = await db_post.getPostUserAuth(post_id, session.user);
     res.send(post);
   });
 });

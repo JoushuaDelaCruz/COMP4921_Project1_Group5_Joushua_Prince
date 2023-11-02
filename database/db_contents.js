@@ -20,7 +20,7 @@ const create = async (post) => {
   }
 };
 
-const getPostRepliesAndUserVotes = async (post_id, user_id) => {
+const getPostRepliesUserAuth = async (post_id, user_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
 	( SELECT content_id, user_id, content, date_created, parent_id, content_id AS super_parent, 0 AS level
@@ -38,7 +38,6 @@ const getPostRepliesAndUserVotes = async (post_id, user_id) => {
     )
   SELECT 
     cte.content_id,
-    cte.user_id,
     username,
     profile_img,
     title,
@@ -88,7 +87,6 @@ const getPostReplies = async (post_id) => {
     )
   SELECT 
     cte.content_id,
-    cte.user_id,
     username,
     profile_img,
     title,
@@ -119,4 +117,4 @@ const search = async (text) => {
   return null;
 };
 
-module.exports = { create, getPostReplies, getPostRepliesAndUserVotes, search };
+module.exports = { create, getPostReplies, getPostRepliesUserAuth, search };
