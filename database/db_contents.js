@@ -20,7 +20,28 @@ const create = async (post) => {
   }
 };
 
-const deleteContent = async (post_id, user_id) => {
+const edit = async (content_id, new_text, new_date, user_id) => {
+  const query = `
+    UPDATE contents
+    SET content = :new_text, date_created = :new_date
+    WHERE content_id = :content_id AND user_id = :user_id
+  `;
+  const params = {
+    new_text: new_text,
+    new_date: new_date,
+    content_id: content_id,
+    user_id: user_id,
+  };
+  try {
+    await database.query(query, params);
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
+const setDeleted = async (post_id, user_id) => {
   const query = `
     UPDATE contents
     SET content = '[deleted]'
@@ -30,6 +51,22 @@ const deleteContent = async (post_id, user_id) => {
     post_id: post_id,
     user_id: user_id,
   };
+  try {
+    await database.query(query, params);
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
+const setRemoved = async (content_id) => {
+  const query = `
+    UPDATE contents
+    SET content = '[removed]'
+    WHERE content_id = :content_id
+  `;
+  const params = { content_id: content_id };
   try {
     await database.query(query, params);
     return true;
@@ -137,9 +174,11 @@ const search = async (text) => {
 };
 
 module.exports = {
+  edit,
   create,
   getPostReplies,
   getPostRepliesUserAuth,
   search,
-  deleteContent,
+  setDeleted,
+  setRemoved,
 };
