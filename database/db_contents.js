@@ -20,6 +20,25 @@ const create = async (post) => {
   }
 };
 
+const deleteContent = async (post_id, user_id) => {
+  const query = `
+    UPDATE contents
+    SET content = '[deleted]'
+    WHERE content_id = :post_id AND user_id = :user_id
+  `;
+  const params = {
+    post_id: post_id,
+    user_id: user_id,
+  };
+  try {
+    await database.query(query, params);
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
 const getPostRepliesUserAuth = async (post_id, user_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
@@ -117,4 +136,10 @@ const search = async (text) => {
   return null;
 };
 
-module.exports = { create, getPostReplies, getPostRepliesUserAuth, search };
+module.exports = {
+  create,
+  getPostReplies,
+  getPostRepliesUserAuth,
+  search,
+  deleteContent,
+};

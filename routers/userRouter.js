@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const session = require("express-session");
 const saltRounds = 12;
 const db_users = include("database/db_users");
+const db_contents = include("database/db_contents");
 const cloudinary = include("database/modules/cloudinary");
 const expireTime = 60 * 60 * 1000; //expires after 1 hr (hours * minutes * seconds * millis)
 
@@ -127,6 +127,34 @@ router.get("/logout", async (req, res) => {
       return;
     }
     res.send(true);
+  });
+});
+
+router.delete("/deleteContent", async (req, res) => {
+  const sessionID = req.body.data.sessionID;
+  const content_id = req.body.data.content_id;
+  req.sessionStore.get(sessionID, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.send(false);
+      return;
+    }
+    if (!session) {
+      res.send(false);
+      return;
+    }
+    if (!session.authenticated) {
+      res.send(false);
+      return;
+    }
+    const user_id = session.user;
+    const success = await db_contents.deleteContent(content_id, user_id);
+    if (success) {
+      res.send(true);
+      return;
+    } else {
+      res.status(500).send(false);
+    }
   });
 });
 
