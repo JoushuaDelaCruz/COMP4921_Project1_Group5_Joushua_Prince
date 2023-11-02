@@ -26,7 +26,6 @@ router.post("/", async (req, res) => {
     const user = {
       username: session.username,
       profile_img: session.profile_img,
-      id: session.user,
     };
     res.send(user);
   });
@@ -78,7 +77,6 @@ router.post("/login", async (req, res) => {
     return;
   }
   if (bcrypt.compareSync(password, user.password)) {
-    req.session.user = user.user_id;
     req.session.authenticated = true;
     req.session.username = user.username;
     req.session.profile_img = user.profile_img;
