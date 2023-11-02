@@ -24,7 +24,7 @@ const getPostRepliesAndUserVotes = async (post_id, user_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
 	( SELECT content_id, user_id, content, date_created, parent_id, content_id AS super_parent, 0 AS level
-	  FROM contents WHERE content_id = 6
+	  FROM contents WHERE content_id = :post_id
       UNION
       SELECT c.content_id, c.user_id, c.content, c.date_created, c.parent_id, cte.super_parent, cte.level + 1
       FROM cte_posts cte
@@ -48,12 +48,13 @@ const getPostRepliesAndUserVotes = async (post_id, user_id) => {
     IFNULL(vc.num_votes, 0) AS num_votes,
     v.vote_id,
     v.value,
+    CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner,
     level
   FROM cte_posts cte
   JOIN users USING (user_id)
   JOIN posts p ON p.content_id = cte.super_parent
   LEFT JOIN vote_counts vc ON vc.content_id = cte.content_id
-  LEFT JOIN votes v ON cte.content_id = v.content_id AND v.user_id = 7
+  LEFT JOIN votes v ON cte.content_id = v.content_id AND v.user_id = :user_id
   WHERE level > 0;
   `;
   const params = {

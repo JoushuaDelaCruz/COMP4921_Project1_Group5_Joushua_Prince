@@ -192,7 +192,8 @@ const getPostsAndUserVotes = async (user_id) => {
       COUNT(*) - 1 AS num_comments,
       IFNULL(vc.num_votes, 0) AS num_votes,
       v.vote_id,
-      v.value
+      v.value,
+      CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner
   FROM cte_posts cte
   JOIN users USING (user_id)
   LEFT JOIN posts p ON p.content_id = cte.parent
