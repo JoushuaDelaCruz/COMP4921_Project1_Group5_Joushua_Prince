@@ -20,21 +20,20 @@ const create = async (post) => {
   }
 };
 
-const edit = async (content_id, new_text, new_date, user_id) => {
+const edit = async (content_id, new_text, user_id) => {
   const query = `
     UPDATE contents
-    SET content = :new_text, date_created = :new_date
+    SET content = :new_text
     WHERE content_id = :content_id AND user_id = :user_id
   `;
   const params = {
     new_text: new_text,
-    new_date: new_date,
     content_id: content_id,
     user_id: user_id,
   };
   try {
-    await database.query(query, params);
-    return true;
+    const result = await database.query(query, params);
+    return result[0].affectedRows;
   } catch (err) {
     console.log(err);
     return false;
