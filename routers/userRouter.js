@@ -78,6 +78,7 @@ router.post("/login", async (req, res) => {
   }
   if (bcrypt.compareSync(password, user.password)) {
     req.session.authenticated = true;
+    req.session.user = user.user_id;
     req.session.username = user.username;
     req.session.profile_img = user.profile_img;
     req.session.cookie.maxAge = expireTime;
@@ -118,7 +119,7 @@ router.post("/isEmailExist", async (req, res) => {
   }
 });
 
-router.get("/logout", async (req, res) => {
+router.post("/logout", async (req, res) => {
   const sessionID = req.body.data;
   req.sessionStore.destroy(sessionID, (err) => {
     if (err) {
@@ -154,6 +155,35 @@ router.delete("/deleteContent", async (req, res) => {
       return;
     } else {
       res.status(500).send(false);
+    }
+  });
+});
+
+router.post("/editContent", async (req, res) => {
+  const content_id = req.body.data.content_id;
+  const content = req.body.data.content;
+  const sessionID = req.body.data.sessionID;
+  req.sessionStore.get(sessionID, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.send(false);
+      return;
+    }
+    if (!session) {
+      res.send(false);
+      return;
+    }
+    if (!session.authenticated) {
+      res.send(false);
+      return;
+    }
+    const user_id = session.user;
+    const modified = await db_contents.edit(content_id, content, user_id);
+    if (modified === 1) {
+      res.send(true);
+      return;
+    } else {
+      res.status(400).send(false);
     }
   });
 });
