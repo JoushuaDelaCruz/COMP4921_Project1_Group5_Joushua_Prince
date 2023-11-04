@@ -49,11 +49,14 @@ router.post("/create", async (req, res) => {
       return;
     }
     const reply = {
+      content_id: null,
       user_id: session.user,
       username: session.username,
       profile_img: session.profile_img,
       content: req.body.data.content,
       parent_id: req.body.data.parent_id,
+      num_votes: 0,
+      is_owner: 1,
       date_created: new Date(),
     };
     const post = await db_contents.create(reply);
@@ -61,6 +64,7 @@ router.post("/create", async (req, res) => {
       res.send(null);
       return;
     }
+    reply.content_id = post.insertId;
     res.send(reply);
     return;
   });
