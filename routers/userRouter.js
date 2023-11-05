@@ -32,7 +32,7 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/checkSession", async (req, res) => {
-  const sessionID = req.body.data;
+  const sessionID = req.body.data.sessionID;
   req.sessionStore.get(sessionID, (err, session) => {
     if (err) {
       console.error("Error while checking session:", err);
