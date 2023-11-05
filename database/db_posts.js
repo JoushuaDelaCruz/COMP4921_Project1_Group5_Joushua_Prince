@@ -212,10 +212,70 @@ const getPostsUserAuth = async (user_id) => {
   }
 };
 
+const isPostOwner = async (reply_id, user_id) => {
+  const query = `
+  WITH RECURSIVE cte_posts AS 
+	( SELECT 
+      content_id, 
+      parent_id,
+      user_id
+	  FROM contents WHERE content_id = :reply_id
+      UNION
+      SELECT c.content_id, c.parent_id, c.user_id
+      FROM cte_posts cte
+      JOIN contents c ON cte.parent_id = c.content_id
+    )
+  SELECT content_id AS post_id
+  FROM cte_posts cte
+  WHERE parent_id IS NULL AND user_id = :user_id;
+  `;
+  const params = {
+    reply_id: reply_id,
+    user_id: user_id,
+  };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0][0];
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+const setContentRemove = async (reply_id) => {
+  const query = `
+  UPDATE contents
+  SET is_removed = 1, content = "[removed]"
+  WHERE content_id = :content_id;
+  `;
+  const params = {
+    content_id: reply_id,
+  };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0].affectedRows;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+const removeReply = async (reply_id, post_id, user_id) => {
+  const post_owner = await isPostOwner(reply_id, user_id);
+  if (post_owner.post_id !== parseInt(post_id)) {
+    return false;
+  }
+  const is_removed = await setContentRemove(reply_id);
+  return is_removed === 1;
+};
+
 module.exports = {
   create,
   getPosts,
   getPost,
   getPostsUserAuth,
   getPostUserAuth,
+  removeReply,
 };
