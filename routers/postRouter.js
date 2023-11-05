@@ -76,4 +76,32 @@ router.post("/create", async (req, res) => {
   });
 });
 
+router.post("/removeReply", async (req, res) => {
+  const sessionID = req.body.data.sessionID;
+  const reply_id = req.body.data.reply_id;
+  const post_id = req.body.data.post_id;
+  req.sessionStore.get(sessionID, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.send(false);
+      return;
+    }
+    if (!session) {
+      res.sendStatus(401).send(false);
+      return;
+    }
+    if (!session.authenticated) {
+      res.sendStatus(401).send(false);
+      return;
+    }
+    const success = await db_post.removeReply(reply_id, post_id, session.user);
+    if (!success) {
+      res.sendStatus(403).send(false);
+      return;
+    }
+    res.send(true);
+    return;
+  });
+});
+
 module.exports = router;
