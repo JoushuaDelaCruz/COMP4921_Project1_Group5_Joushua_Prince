@@ -57,6 +57,7 @@ router.post("/create", async (req, res) => {
       parent_id: req.body.data.parent_id,
       num_votes: 0,
       is_owner: 1,
+      is_removed: 0,
       date_created: new Date(),
     };
     const post = await db_contents.create(reply);
