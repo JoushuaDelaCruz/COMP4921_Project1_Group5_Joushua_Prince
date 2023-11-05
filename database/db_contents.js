@@ -78,10 +78,10 @@ const setRemoved = async (content_id) => {
 const getPostRepliesUserAuth = async (post_id, user_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
-	( SELECT content_id, user_id, content, date_created, parent_id, content_id AS super_parent, 0 AS level
+	( SELECT content_id, user_id, content, date_created, parent_id, is_removed, content_id AS super_parent, 0 AS level
 	  FROM contents WHERE content_id = :post_id
       UNION
-      SELECT c.content_id, c.user_id, c.content, c.date_created, c.parent_id, cte.super_parent, cte.level + 1
+      SELECT c.content_id, c.user_id, c.content, c.date_created, c.parent_id, c.is_removed, cte.super_parent, cte.level + 1
       FROM cte_posts cte
       JOIN contents c ON cte.content_id = c.parent_id
     ), vote_counts AS 
@@ -102,6 +102,7 @@ const getPostRepliesUserAuth = async (post_id, user_id) => {
     IFNULL(vc.num_votes, 0) AS num_votes,
     v.vote_id,
     v.value,
+    is_removed,
     CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner,
     level
   FROM cte_posts cte
