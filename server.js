@@ -52,7 +52,9 @@ const postRouter = require("./routers/postRouter");
 const replyRouter = require("./routers/replyRouter");
 const searchRouter = require("./routers/searchRouter");
 const votesRouter = require("./routers/votesRouter");
+const favouriteRouter = require("./routers/favouriteRouter");
 
+app.use("/favourite", favouriteRouter);
 app.use("/user", userRouter);
 app.use("/post", postRouter);
 app.use("/reply", replyRouter);
