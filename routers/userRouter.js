@@ -43,7 +43,13 @@ router.post("/checkSession", async (req, res) => {
       res.sendStatus(401).send(false);
       return;
     }
-    res.send(session.authenticated);
+    if (!session.authenticated) {
+      res.sendStatus(401).send(false);
+      return;
+    } else {
+      res.send(true);
+      return;
+    }
   });
 });
 
