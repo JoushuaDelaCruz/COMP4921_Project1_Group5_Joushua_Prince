@@ -90,18 +90,20 @@ const getPostUserAuth = async (post_id, user_id) => {
       username,
       profile_img,
       title,
-      date_created,
+      cte.date_created,
       content,
       COUNT(*) - 1 AS num_comments,
       IFNULL(vc.num_votes, 0) AS num_votes,
       v.vote_id,
       v.value,
-      CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner
+      CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner,
+      CASE WHEN f.favourite_id IS NOT NULL THEN 1 ELSE 0 END AS is_favourited
   FROM cte_posts cte
   JOIN users USING (user_id)
   LEFT JOIN posts p ON p.content_id = cte.parent
   LEFT JOIN vote_counts vc ON cte.content_id = vc.content_id
   LEFT JOIN votes v ON cte.content_id = v.content_id AND v.user_id = :user_id
+  LEFT JOIN favourites f ON cte.content_id = f.content_id AND f.user_id = :user_id
   GROUP BY cte.parent
   ORDER BY date_created DESC;
   `;
@@ -184,18 +186,20 @@ const getPostsUserAuth = async (user_id) => {
       username,
       profile_img,
       title,
-      date_created,
+      cte.date_created,
       content,
       COUNT(*) - 1 AS num_comments,
       IFNULL(vc.num_votes, 0) AS num_votes,
       v.vote_id,
       v.value,
-      CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner
+      CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner,
+      CASE WHEN f.favourite_id IS NOT NULL THEN 1 ELSE 0 END AS is_favourited
   FROM cte_posts cte
   JOIN users USING (user_id)
   LEFT JOIN posts p ON p.content_id = cte.parent
   LEFT JOIN vote_counts vc ON cte.content_id = vc.content_id
-  LEFT JOIN votes v ON cte.content_id = v.content_id AND v.user_id = 7
+  LEFT JOIN votes v ON cte.content_id = v.content_id AND v.user_id = :user_id
+  LEFT JOIN favourites f ON cte.content_id = f.content_id AND f.user_id = :user_id
   GROUP BY cte.parent
   ORDER BY date_created DESC;
   `;
