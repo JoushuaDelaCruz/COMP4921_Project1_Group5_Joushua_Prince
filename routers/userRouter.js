@@ -12,15 +12,15 @@ router.post("/", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.sendStatus(500).send(null);
+      res.status(500).send(null);
       return;
     }
     if (!session) {
-      res.sendStatus(401).send(null);
+      res.status(401).send(null);
       return;
     }
     if (!session.authenticated) {
-      res.sendStatus(401).send(null);
+      res.status(401).send(null);
       return;
     }
     const user = {
@@ -36,15 +36,15 @@ router.post("/checkSession", async (req, res) => {
   req.sessionStore.get(sessionID, (err, session) => {
     if (err) {
       console.error("Error while checking session:", err);
-      res.sendStatus(500).send(false);
+      res.status(500).send(false);
       return;
     }
     if (!session) {
-      res.sendStatus(401).send(false);
+      res.status(401).send(false);
       return;
     }
     if (!session.authenticated) {
-      res.sendStatus(401).send(false);
+      res.status(401).send(false);
       return;
     } else {
       res.send(true);
@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
   const password = req.body.data.password;
   const user = await db_users.getUserByEmail(email);
   if (!user) {
-    res.sendStatus(401).send(null);
+    res.status(401).send(null);
     return;
   }
   if (bcrypt.compareSync(password, user.password)) {
@@ -143,15 +143,15 @@ router.delete("/deleteContent", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.sendStatus(500).send(false);
+      res.status(500).send(false);
       return;
     }
     if (!session) {
-      res.sendStatus(401).send(false);
+      res.status(401).send(false);
       return;
     }
     if (!session.authenticated) {
-      res.sendStatus(401).send(false);
+      res.status(401).send(false);
       return;
     }
     const user_id = session.user;
@@ -172,15 +172,15 @@ router.post("/editContent", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.sendStatus(500).send(false);
+      res.status(500).send(false);
       return;
     }
     if (!session) {
-      res.sendStatus(401).send(false);
+      res.status(401).send(false);
       return;
     }
     if (!session.authenticated) {
-      res.sendStatus(401).send(false);
+      res.status(401).send(false);
       return;
     }
     const user_id = session.user;
