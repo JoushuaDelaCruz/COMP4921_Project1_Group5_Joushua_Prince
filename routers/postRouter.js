@@ -15,7 +15,7 @@ router.get("/:session", async (req, res) => {
       return;
     }
     if (!session || !session.authenticated) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     const posts = await db_post.getPostsUserAuth(session.user);
@@ -35,11 +35,11 @@ router.get("/getPost/:post_id/:session", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.send(null);
+      res.sendStatus(500).send(null);
       return;
     }
     if (!session || !session.authenticated) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     const post = await db_post.getPostUserAuth(post_id, session.user);
@@ -52,15 +52,15 @@ router.post("/create", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.send(false);
+      res.sendStatus(500).send(false);
       return;
     }
     if (!session) {
-      res.send(false);
+      res.sendStatus(401).send(false);
       return;
     }
     if (!session.authenticated) {
-      res.send(false);
+      res.sendStatus(401).send(false);
       return;
     }
     const post = {
@@ -83,7 +83,7 @@ router.post("/removeReply", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.send(false);
+      res.sendStatus(500).send(false);
       return;
     }
     if (!session) {

@@ -14,15 +14,15 @@ router.get("/:post_id/:session_id", async (req, res) => {
   req.sessionStore.get(session_id, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.send(null);
+      res.sendStatus(500).send(null);
       return;
     }
     if (!session) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     if (!session.authenticated) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     const user_id = session.user;
@@ -37,15 +37,15 @@ router.post("/create", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.send(null);
+      res.sendStatus(500).send(null);
       return;
     }
     if (!session) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     if (!session.authenticated) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     const reply = {

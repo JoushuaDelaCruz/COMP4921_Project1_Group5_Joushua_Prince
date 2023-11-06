@@ -9,15 +9,15 @@ router.post("/toggle", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.send(null);
+      res.sendStatus(500).send(null);
       return;
     }
     if (!session) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     if (!session.authenticated) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     const success = await db_votes.toggle(vote_id, vote_orig);
@@ -32,15 +32,15 @@ router.post("/record", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.send(null);
+      res.sendStatus(500).send(null);
       return;
     }
     if (!session) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     if (!session.authenticated) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     const insert_id = await db_votes.record(
@@ -58,15 +58,15 @@ router.post("/unVote", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.send(null);
+      res.sendStatus(500).send(null);
       return;
     }
     if (!session) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     if (!session.authenticated) {
-      res.send(null);
+      res.sendStatus(401).send(null);
       return;
     }
     const success = await db_votes.unVote(vote_id);
