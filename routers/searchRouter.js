@@ -7,10 +7,17 @@ router.get("/:text", async (req, res) => {
   const results = await db_contents.search(text);
   console.log(results)
   console.log("searching for: " + text);
-  res.send([{
-    id: 1,
-    text: results
-  }]);
+
+  if (results) {
+    res.send([{
+      id: 1,
+      text: results
+    }]);
+  } else {
+    res.status(404).send({
+      message: "Not found"
+    });
+  }
 });
 
 module.exports = router;
