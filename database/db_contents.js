@@ -69,7 +69,6 @@ const search = async (keyword) => {
   };
   try {
     const result = await database.query(query, params);
-    console.log(result[0][0])
     return result[0][0].content;
   } catch (error) {
     console.error("Error while getting contetms:", error);
