@@ -61,7 +61,8 @@ const search = async (keyword) => {
   const query = `
   SELECT content
   FROM contents
-  WHERE MATCH(content) AGAINST (:keyword IN BOOLEAN MODE);
+  WHERE MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) 
+  AND is_removed = 0 AND is_deleted = 0;
   `;
   const params = {
     keyword: keyword
