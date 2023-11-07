@@ -59,17 +59,20 @@ const getPostReplies = async (post_id) => {
 
 const search = async (keyword) => {
   const query = `
-  SELECT content
+  SELECT content_id, content, MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) as score
   FROM contents
-  WHERE MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) 
-  AND is_removed = 0 AND is_deleted = 0;
+  WHERE is_removed = 0 AND is_deleted = 0
+        AND MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) > 0
+  ORDER BY score DESC;
+  
   `;
   const params = {
     keyword: keyword
   };
   try {
     const result = await database.query(query, params);
-    return result[0][0].content;
+    console.log(result[0])
+    return result[0];
   } catch (error) {
     console.error("Error while getting contetms:", error);
     return false;
