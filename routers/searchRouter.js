@@ -7,12 +7,12 @@ router.get("/:text", async (req, res) => {
   const results = await db_contents.search(text);
 
   if (results) {
-    const contentArray = results.map(result => result.content);
+    const response = results.map(result => ({
+      comment_id: result.comment_id,
+      content: result.content
+    }));
 
-    res.send([{
-      id: 1,
-      text: contentArray
-    }]);
+    res.send(response);
   } else {
     res.status(404).send({
       message: "Not found"

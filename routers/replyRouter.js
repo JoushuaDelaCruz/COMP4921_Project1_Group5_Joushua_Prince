@@ -42,4 +42,29 @@ router.post("/create", async (req, res) => {
   });
 });
 
+
+router.get("/reply/:comment_id", async (req, res) => {
+  console.log("TRYING")
+  const comment_id = req.params.comment_id;
+
+  try {
+    const parentComments = await db_contents.getcommentReplies(comment_id);
+
+    if (parentComments) {
+      res.json({
+        parentComments
+      });
+    } else {
+      res.status(404).json({
+        message: "No parent comments found"
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Internal server error"
+    });
+  }
+});
+
 module.exports = router;

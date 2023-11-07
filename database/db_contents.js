@@ -59,12 +59,12 @@ const getPostReplies = async (post_id) => {
 
 const search = async (keyword) => {
   const query = `
-  SELECT content_id, content, MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) as score
-  FROM contents
-  WHERE is_removed = 0 AND is_deleted = 0
-        AND MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) > 0
-  ORDER BY score DESC;
-  
+ SELECT content_id, content, MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) as score
+FROM contents
+WHERE is_removed = 0 AND is_deleted = 0
+      AND MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) > 0
+ORDER BY score DESC;
+
   `;
   const params = {
     keyword: keyword
@@ -79,9 +79,47 @@ const search = async (keyword) => {
   }
 };
 
-
+const getcommentReplies = async (comment_id) => {
+  const query = `
+  WITH RECURSIVE cte_comments AS (
+    SELECT 
+      content_id,
+      user_id,
+      content,
+      parent_id,
+      date_created
+    FROM contents
+    WHERE content_id = :comment_id 
+  
+    UNION ALL
+  
+    SELECT
+      c.content_id,
+      c.user_id,
+      c.content,
+      c.parent_id,
+      c.date_created
+    FROM cte_comments cte
+    JOIN contents c ON cte.parent_id = c.content_id
+  )
+  SELECT *
+  FROM cte_comments;
+  
+  `;
+  const params = {
+    comment_id: comment_id,
+  };
+  try {
+    const replies = await database.query(query, params);
+    return replies[0];
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
 module.exports = {
   create,
   getPostReplies,
-  search
+  search,
+  getcommentReplies
 };
