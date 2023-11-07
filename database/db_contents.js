@@ -58,52 +58,24 @@ const getPostReplies = async (post_id) => {
 };
 
 const search = async (keyword) => {
-  console.log("Inside search" + keyword)
   const query = `
   SELECT content
   FROM contents
-  WHERE content LIKE '%' || :keyword || '%';    
-
+  WHERE MATCH(content) AGAINST (:keyword IN BOOLEAN MODE);
   `;
   const params = {
     keyword: keyword
   };
   try {
     const result = await database.query(query, params);
-    return result[0][2]['content'];
+    console.log(result[0][0])
+    return result[0][0].content;
   } catch (error) {
-    console.error("Error while checking username:", error);
+    console.error("Error while getting contetms:", error);
     return false;
   }
 };
 
-// const search = async (keyword) => {
-//   console.log("Inside search" + keyword)
-//   const query = `
-
-
-//   SELECT 
-//   content, 
-//   MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) as score 
-// FROM 
-//   contents 
-// WHERE 
-//   MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) 
-// ORDER BY 
-//   score DESC;  
-
-//   `;
-//   const params = {
-//     keyword: keyword
-//   };
-//   try {
-//     const result = await database.query(query, params);
-//     return result[0];
-//   } catch (error) {
-//     console.error("Error while checking username:", error);
-//     return false;
-//   }
-// };
 
 module.exports = {
   create,

@@ -9,7 +9,7 @@ const database = include("mySQLDatabaseConnection");
 //     SELECT content
 //     FROM contents
 //     WHERE content LIKE '%' || :keyword || '%';    
-      
+
 //     `;
 //     const params = {
 //         keyword: keyword
@@ -35,7 +35,8 @@ const searchComments = async (keyword) => {
     };
     try {
         const result = await database.query(query, params);
-        return result[0].length > 0;
+        console.log(result[0][0])
+        return result[0][0].content;
     } catch (error) {
         console.error("Error while checking username:", error);
         return false;
