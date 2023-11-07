@@ -53,6 +53,7 @@ const replyRouter = require("./routers/replyRouter");
 const searchRouter = require("./routers/searchRouter");
 const votesRouter = require("./routers/votesRouter");
 const favouriteRouter = require("./routers/favouriteRouter");
+const profileRouter = require("./routers/profileRouter");
 
 app.use("/favourite", favouriteRouter);
 app.use("/user", userRouter);
@@ -60,6 +61,7 @@ app.use("/post", postRouter);
 app.use("/reply", replyRouter);
 app.use("/search", searchRouter);
 app.use("/votes", votesRouter);
+app.use("/profile", profileRouter);
 
 app.get("/", (req, res) => {
   res.redirect("/home");
