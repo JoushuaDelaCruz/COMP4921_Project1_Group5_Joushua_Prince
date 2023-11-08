@@ -79,49 +79,50 @@ ORDER BY score DESC;
   }
 };
 
-const getcommentReplies = async (comment_id) => {
+const getCommentReplies = async (comment_id) => {
   const query = `
-  WITH RECURSIVE cte_comments AS (
-    SELECT 
-      content_id,
-      user_id,
-      content,
-      parent_id,
-      date_created
-    FROM contents
-    WHERE content_id = :reply_id -- Specify the content_id of the reply
+    WITH RECURSIVE cte_comments AS (
+      SELECT 
+        content_id,
+        user_id,
+        content,
+        parent_id,
+        date_created
+      FROM contents
+      WHERE content_id = :comment_id -- Specify the content_id of the reply
   
-    UNION ALL
+      UNION ALL
   
-    SELECT
-      c.content_id,
-      c.user_id,
-      c.content,
-      c.parent_id,
-      c.date_created
-    FROM cte_comments cte
-    JOIN contents c ON cte.parent_id = c.content_id
-)
-SELECT *
-FROM cte_comments
-WHERE parent_id IS NULL;
-
-  
+      SELECT
+        c.content_id,
+        c.user_id,
+        c.content,
+        c.parent_id,
+        c.date_created
+      FROM cte_comments cte
+      JOIN contents c ON cte.parent_id = c.content_id
+    )
+    SELECT *
+    FROM cte_comments
+    WHERE parent_id IS NULL; -- Filter to retrieve the main parent comment
   `;
   const params = {
     comment_id: comment_id,
   };
+
   try {
     const replies = await database.query(query, params);
-    return replies[0];
+    console.log("OUR REPLIES " + replies[0][0].content_id)
+    return replies[0][0].content_id;
   } catch (err) {
     console.log(err);
     return null;
   }
 };
+
 module.exports = {
   create,
   getPostReplies,
   search,
-  getcommentReplies
+  getCommentReplies
 };
