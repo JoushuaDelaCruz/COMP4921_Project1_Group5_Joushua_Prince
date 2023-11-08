@@ -137,7 +137,7 @@ router.post("/logout", async (req, res) => {
   });
 });
 
-router.delete("/deleteContent", async (req, res) => {
+router.post("/deleteContent", async (req, res) => {
   const sessionID = req.body.data.sessionID;
   const content_id = req.body.data.content_id;
   req.sessionStore.get(sessionID, async (err, session) => {
@@ -160,7 +160,7 @@ router.delete("/deleteContent", async (req, res) => {
       res.send(true);
       return;
     } else {
-      res.status(500).send(false);
+      res.status(403).send(false);
     }
   });
 });

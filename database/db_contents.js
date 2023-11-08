@@ -40,10 +40,9 @@ const edit = async (content_id, new_text, user_id) => {
   }
 };
 
-const setDeleted = async (post_id, user_id) => {
+const deleteContent = async (post_id, user_id) => {
   const query = `
-    UPDATE contents
-    SET content = '[deleted]'
+    DELETE FROM contents
     WHERE content_id = :post_id AND user_id = :user_id
   `;
   const params = {
@@ -51,8 +50,8 @@ const setDeleted = async (post_id, user_id) => {
     user_id: user_id,
   };
   try {
-    await database.query(query, params);
-    return true;
+    const result = await database.query(query, params);
+    return result[0].affectedRows > 0;
   } catch (err) {
     console.log(err);
     return false;
@@ -179,6 +178,6 @@ module.exports = {
   getPostReplies,
   getPostRepliesUserAuth,
   search,
-  setDeleted,
+  deleteContent,
   setRemoved,
 };
