@@ -176,10 +176,10 @@ const search = async (keyword) => {
     username,
     profile_img,
     date_created,
-    MATCH(content) AGAINST ("avocado" IN BOOLEAN MODE) as score
+    MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) as score
   FROM contents
   JOIN users USING (user_id)
-  WHERE is_removed = 0 AND MATCH(content) AGAINST ("avocado" IN BOOLEAN MODE) > 0
+  WHERE is_removed = 0 AND MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) > 0
   ORDER BY score DESC;
   `;
   const params = {
