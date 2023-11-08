@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const session = require("express-session");
 const saltRounds = 12;
 const db_users = include("database/db_users");
+const db_contents = include("database/db_contents");
 const cloudinary = include("database/modules/cloudinary");
 const expireTime = 60 * 60 * 1000; //expires after 1 hr (hours * minutes * seconds * millis)
 
@@ -12,15 +12,15 @@ router.post("/", async (req, res) => {
   req.sessionStore.get(sessionID, async (err, session) => {
     if (err) {
       console.error("Error while getting session:", err);
-      res.send(null);
+      res.status(500).send(null);
       return;
     }
     if (!session) {
-      res.send(null);
+      res.status(401).send(null);
       return;
     }
     if (!session.authenticated) {
-      res.send(null);
+      res.status(401).send(null);
       return;
     }
     const user = {
@@ -32,18 +32,24 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/checkSession", async (req, res) => {
-  const sessionID = req.body.data;
+  const sessionID = req.body.data.sessionID;
   req.sessionStore.get(sessionID, (err, session) => {
     if (err) {
       console.error("Error while checking session:", err);
-      res.send(false);
+      res.status(500).send(false);
       return;
     }
     if (!session) {
-      res.send(false);
+      res.status(401).send(false);
       return;
     }
-    res.send(session.authenticated);
+    if (!session.authenticated) {
+      res.status(401).send(false);
+      return;
+    } else {
+      res.send(true);
+      return;
+    }
   });
 });
 
@@ -73,12 +79,12 @@ router.post("/login", async (req, res) => {
   const password = req.body.data.password;
   const user = await db_users.getUserByEmail(email);
   if (!user) {
-    res.send(null);
+    res.status(401).send(null);
     return;
   }
   if (bcrypt.compareSync(password, user.password)) {
-    req.session.user = user.user_id;
     req.session.authenticated = true;
+    req.session.user = user.user_id;
     req.session.username = user.username;
     req.session.profile_img = user.profile_img;
     req.session.cookie.maxAge = expireTime;
@@ -117,6 +123,75 @@ router.post("/isEmailExist", async (req, res) => {
     console.error("Error while checking email:", error);
     res.send(false);
   }
+});
+
+router.post("/logout", async (req, res) => {
+  const sessionID = req.body.data;
+  req.sessionStore.destroy(sessionID, (err) => {
+    if (err) {
+      console.error("Error while logging out:", err);
+      res.send(false);
+      return;
+    }
+    res.send(true);
+  });
+});
+
+router.post("/deleteContent", async (req, res) => {
+  const sessionID = req.body.data.sessionID;
+  const content_id = req.body.data.content_id;
+  req.sessionStore.get(sessionID, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.status(500).send(false);
+      return;
+    }
+    if (!session) {
+      res.status(401).send(false);
+      return;
+    }
+    if (!session.authenticated) {
+      res.status(401).send(false);
+      return;
+    }
+    const user_id = session.user;
+    const success = await db_contents.deleteContent(content_id, user_id);
+    if (success) {
+      res.send(true);
+      return;
+    } else {
+      res.status(403).send(false);
+    }
+  });
+});
+
+router.post("/editContent", async (req, res) => {
+  const content_id = req.body.data.content_id;
+  const content = req.body.data.content;
+  const sessionID = req.body.data.sessionID;
+  req.sessionStore.get(sessionID, async (err, session) => {
+    if (err) {
+      console.error("Error while getting session:", err);
+      res.status(500).send(false);
+      return;
+    }
+    if (!session) {
+      res.status(401).send(false);
+      return;
+    }
+    if (!session.authenticated) {
+      res.status(401).send(false);
+      return;
+    }
+    const user_id = session.user;
+    const modified = await db_contents.edit(content_id, content, user_id);
+    if (modified === 1) {
+      res.send(true);
+      return;
+    } else {
+      res.status(400).send(false);
+    }
+  });
 });
 
 module.exports = router;

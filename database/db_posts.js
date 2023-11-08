@@ -24,26 +24,36 @@ const create = async (post) => {
 const getPost = async (post_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
-	( SELECT content_id, user_id, content, date_created, content_id AS parent
-	  FROM contents WHERE content_id = :post_id
+  (
+      SELECT content_id, user_id, content, date_created, content_id AS parent
+      FROM contents 
+      WHERE content_id = :post_id
       UNION
       SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
       FROM cte_posts cte
       JOIN contents c ON cte.content_id = c.parent_id
-    )
+  ), vote_counts AS
+  (
+      SELECT SUM(v.value) AS num_votes, cte.content_id
+      FROM cte_posts cte
+      LEFT JOIN votes v ON cte.content_id = v.content_id
+      GROUP BY cte.content_id
+  )
   SELECT 
-    cte.content_id,
-    cte.user_id,
-    username,
-    profile_img,
-    title,
-    date_created,
-    content,
-    COUNT(*) - 1 AS num_comments
+      cte.content_id,
+      username,
+      profile_img,
+      title,
+      date_created,
+      content,
+      COUNT(*) - 1 AS num_comments,
+      IFNULL(v.num_votes, 0) AS num_votes
   FROM cte_posts cte
   JOIN users USING (user_id)
   LEFT JOIN posts p ON p.content_id = cte.parent
-  GROUP BY parent;
+  LEFT JOIN vote_counts v ON cte.content_id = v.content_id
+  GROUP BY cte.parent
+  ORDER BY date_created DESC;  
   `;
   const params = {
     post_id: post_id,
@@ -57,30 +67,92 @@ const getPost = async (post_id) => {
   }
 };
 
-const getPosts = async () => {
+const getPostUserAuth = async (post_id, user_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
-	  (SELECT content_id, user_id, content, date_created, content_id AS parent
-	  FROM contents WHERE parent_id IS NULL
+  (
+      SELECT content_id, user_id, content, date_created, content_id AS parent
+      FROM contents 
+      WHERE content_id = :post_id
       UNION
       SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
       FROM cte_posts cte
       JOIN contents c ON cte.content_id = c.parent_id
-    )
+  ), vote_counts AS
+  (
+      SELECT SUM(v.value) AS num_votes, cte.content_id
+      FROM cte_posts cte
+      LEFT JOIN votes v ON cte.content_id = v.content_id
+      GROUP BY cte.content_id
+  )
   SELECT 
       cte.content_id,
-      cte.user_id,
+      username,
+      profile_img,
+      title,
+      cte.date_created,
+      content,
+      COUNT(*) - 1 AS num_comments,
+      IFNULL(vc.num_votes, 0) AS num_votes,
+      v.vote_id,
+      v.value,
+      CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner,
+      CASE WHEN f.favourite_id IS NOT NULL THEN 1 ELSE 0 END AS is_favourited
+  FROM cte_posts cte
+  JOIN users USING (user_id)
+  LEFT JOIN posts p ON p.content_id = cte.parent
+  LEFT JOIN vote_counts vc ON cte.content_id = vc.content_id
+  LEFT JOIN votes v ON cte.content_id = v.content_id AND v.user_id = :user_id
+  LEFT JOIN favourites f ON cte.content_id = f.content_id AND f.user_id = :user_id
+  GROUP BY cte.parent
+  ORDER BY date_created DESC;
+  `;
+  const params = {
+    post_id: post_id,
+    user_id: user_id,
+  };
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+const getPosts = async () => {
+  const query = `
+  WITH RECURSIVE cte_posts AS 
+  (
+      SELECT content_id, user_id, content, date_created, content_id AS parent
+      FROM contents 
+      WHERE parent_id IS NULL
+      UNION
+      SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
+      FROM cte_posts cte
+      JOIN contents c ON cte.content_id = c.parent_id
+  ), vote_counts AS
+  (
+      SELECT SUM(v.value) AS num_votes, cte.content_id
+      FROM cte_posts cte
+      LEFT JOIN votes v ON cte.content_id = v.content_id
+      GROUP BY cte.content_id
+  )
+  SELECT 
+      cte.content_id,
       username,
       profile_img,
       title,
       date_created,
       content,
-      COUNT(*) - 1 AS num_comments
+      COUNT(*) - 1 AS num_comments,
+      IFNULL(v.num_votes, 0) AS num_votes
   FROM cte_posts cte
   JOIN users USING (user_id)
   LEFT JOIN posts p ON p.content_id = cte.parent
-  GROUP BY parent
-  ORDER BY date_created DESC
+  LEFT JOIN vote_counts v ON cte.content_id = v.content_id
+  GROUP BY cte.parent
+  ORDER BY date_created DESC;  
   `;
   try {
     const result = await database.query(query);
@@ -91,4 +163,123 @@ const getPosts = async () => {
   }
 };
 
-module.exports = { create, getPosts, getPost };
+const getPostsUserAuth = async (user_id) => {
+  const query = `
+  WITH RECURSIVE cte_posts AS 
+  (
+      SELECT content_id, user_id, content, date_created, content_id AS parent
+      FROM contents 
+      WHERE parent_id IS NULL
+      UNION
+      SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
+      FROM cte_posts cte
+      JOIN contents c ON cte.content_id = c.parent_id
+  ), vote_counts AS
+  (
+      SELECT SUM(v.value) AS num_votes, cte.content_id
+      FROM cte_posts cte
+      LEFT JOIN votes v ON cte.content_id = v.content_id
+      GROUP BY cte.content_id
+  )
+  SELECT 
+      cte.content_id,
+      username,
+      profile_img,
+      title,
+      cte.date_created,
+      content,
+      COUNT(*) - 1 AS num_comments,
+      IFNULL(vc.num_votes, 0) AS num_votes,
+      v.vote_id,
+      v.value,
+      CASE WHEN cte.user_id = :user_id THEN 1 ELSE 0 END AS is_owner,
+      CASE WHEN f.favourite_id IS NOT NULL THEN 1 ELSE 0 END AS is_favourited
+  FROM cte_posts cte
+  JOIN users USING (user_id)
+  LEFT JOIN posts p ON p.content_id = cte.parent
+  LEFT JOIN vote_counts vc ON cte.content_id = vc.content_id
+  LEFT JOIN votes v ON cte.content_id = v.content_id AND v.user_id = :user_id
+  LEFT JOIN favourites f ON cte.content_id = f.content_id AND f.user_id = :user_id
+  GROUP BY cte.parent
+  ORDER BY date_created DESC;
+  `;
+  const params = {
+    user_id: user_id,
+  };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+const isPostOwner = async (reply_id, user_id) => {
+  const query = `
+  WITH RECURSIVE cte_posts AS 
+	( SELECT 
+      content_id, 
+      parent_id,
+      user_id
+	  FROM contents WHERE content_id = :reply_id
+      UNION
+      SELECT c.content_id, c.parent_id, c.user_id
+      FROM cte_posts cte
+      JOIN contents c ON cte.parent_id = c.content_id
+    )
+  SELECT content_id AS post_id
+  FROM cte_posts cte
+  WHERE parent_id IS NULL AND user_id = :user_id;
+  `;
+  const params = {
+    reply_id: reply_id,
+    user_id: user_id,
+  };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0][0];
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+const setContentRemove = async (reply_id) => {
+  const query = `
+  UPDATE contents
+  SET is_removed = 1, content = "[removed]"
+  WHERE content_id = :content_id;
+  `;
+  const params = {
+    content_id: reply_id,
+  };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0].affectedRows;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+const removeReply = async (reply_id, post_id, user_id) => {
+  const post_owner = await isPostOwner(reply_id, user_id);
+  if (post_owner.post_id !== parseInt(post_id)) {
+    return false;
+  }
+  const is_removed = await setContentRemove(reply_id);
+  return is_removed === 1;
+};
+
+module.exports = {
+  create,
+  getPosts,
+  getPost,
+  getPostsUserAuth,
+  getPostUserAuth,
+  removeReply,
+};
