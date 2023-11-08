@@ -9,7 +9,6 @@ router.get("/:text", async (req, res) => {
     const results = await db_contents.search(text);
 
     if (results) {
-      // Use Promise.all to fetch the parent_id for each result in parallel
       const resultsWithParentIds = await Promise.all(
         results.map(async (result) => {
           const parent = await db_contents.getCommentReplies(result.content_id);
