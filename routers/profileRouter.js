@@ -32,9 +32,33 @@ router.get("/posts/:username/:session", async (req, res) => {
       res.status(401).send();
       return;
     }
-    const user_id = session.user_id;
-    const posts = await db_users.getProfilePostsUserAuth(username, user_id);
+    const user_id = session.user;
+    const posts = await db_users.getProfilePostsAuth(username, user_id);
     res.send(posts);
+  });
+});
+
+router.get("/isUserProfile/:username/:session", async (req, res) => {
+  const username = req.params.username;
+  const session = req.params.session;
+  req.sessionStore.get(session, async (err, session) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send(false);
+      return;
+    }
+    if (!session || !session.authenticated) {
+      res.send(false);
+      return;
+    }
+
+    if (session.username === username) {
+      res.send(true);
+      return;
+    } else {
+      res.send(false);
+      return;
+    }
   });
 });
 
