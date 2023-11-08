@@ -8,7 +8,7 @@ router.get("/:text", async (req, res) => {
 
   if (results) {
     const response = results.map(result => ({
-      comment_id: result.comment_id,
+      content_id: result.content_id,
       content: result.content
     }));
 

@@ -61,7 +61,7 @@ const search = async (keyword) => {
   const query = `
  SELECT content_id, content, MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) as score
 FROM contents
-WHERE is_removed = 0 AND is_deleted = 0
+WHERE is_removed = 0 
       AND MATCH(content) AGAINST (:keyword IN BOOLEAN MODE) > 0
 ORDER BY score DESC;
 
@@ -89,7 +89,7 @@ const getcommentReplies = async (comment_id) => {
       parent_id,
       date_created
     FROM contents
-    WHERE content_id = :comment_id 
+    WHERE content_id = :reply_id -- Specify the content_id of the reply
   
     UNION ALL
   
@@ -101,9 +101,11 @@ const getcommentReplies = async (comment_id) => {
       c.date_created
     FROM cte_comments cte
     JOIN contents c ON cte.parent_id = c.content_id
-  )
-  SELECT *
-  FROM cte_comments;
+)
+SELECT *
+FROM cte_comments
+WHERE parent_id IS NULL;
+
   
   `;
   const params = {
