@@ -214,6 +214,27 @@ const getProfilePosts = async (username) => {
   }
 };
 
+const getBookmarks = async (user_id) => {
+  const query = `
+  SELECT 
+    title,
+    content_id,
+    date_created
+  FROM favourites
+  JOIN posts USING (content_id)
+  WHERE user_id = :user_id
+  `;
+  const params = { user_id };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (error) {
+    console.error("Error while getting bookmarks:", error);
+    return null;
+  }
+};
+
 module.exports = {
   create,
   isUsernameExist,
@@ -223,4 +244,5 @@ module.exports = {
   getProfile,
   getProfilePosts,
   getProfilePostsAuth,
+  getBookmarks,
 };
