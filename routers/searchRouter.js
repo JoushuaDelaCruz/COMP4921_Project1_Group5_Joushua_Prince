@@ -2,25 +2,6 @@ const express = require("express");
 const router = express.Router();
 const db_contents = include("database/db_contents");
 
-// router.get("/:text", async (req, res) => {
-//   const text = req.params.text;
-//   const results = await db_contents.search(text);
-//   const parents = await db_contents.getcommentReplies
-
-//   if (results) {
-//     const response = results.map(result => ({
-//       content_id: result.content_id,
-//       content: result.content
-//     }));
-
-//     res.send(response);
-//   } else {
-//     res.status(404).send({
-//       message: "Not found"
-//     });
-//   }
-// });
-
 router.get("/:text", async (req, res) => {
   const text = req.params.text;
 
