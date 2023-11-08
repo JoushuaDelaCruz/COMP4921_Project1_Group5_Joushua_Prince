@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
       return;
     }
     if (!session) {
-      res.status(401).send(null);
+      res.send(null);
       return;
     }
     if (!session.authenticated) {
@@ -40,7 +40,7 @@ router.post("/checkSession", async (req, res) => {
       return;
     }
     if (!session) {
-      res.status(401).send(false);
+      res.send(false);
       return;
     }
     if (!session.authenticated) {
