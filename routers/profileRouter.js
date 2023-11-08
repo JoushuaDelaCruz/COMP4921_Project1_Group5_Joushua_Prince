@@ -62,4 +62,24 @@ router.get("/isUserProfile/:username/:session", async (req, res) => {
   });
 });
 
+router.get("/bookmarks/:session", async (req, res) => {
+  const session = req.params.session;
+  req.sessionStore.get(session, async (err, session) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send();
+      return;
+    }
+    if (!session || !session.authenticated) {
+      res.status(401).send();
+      return;
+    }
+    const user_id = session.user;
+    const bookmarks = await db_users.getBookmarks(user_id);
+    console.log(bookmarks);
+    res.send(bookmarks);
+    return;
+  });
+});
+
 module.exports = router;
