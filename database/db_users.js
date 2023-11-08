@@ -146,6 +146,7 @@ const getProfilePostsAuth = async (username, current_user_id) => {
       content,
       COUNT(*) - 1 AS num_comments,
       IFNULL(vc.num_votes, 0) AS num_votes,
+      v.value,
       CASE WHEN f.favourite_id IS NOT NULL THEN 1 ELSE 0 END AS is_favourited,
       CASE WHEN v.vote_id IS NOT NULL THEN 1 ELSE 0 END AS is_voted
   FROM cte_posts cte
@@ -160,7 +161,6 @@ const getProfilePostsAuth = async (username, current_user_id) => {
     profile_owner_id,
     user_id: current_user_id,
   };
-
   try {
     const result = await database.query(query, params);
     return result[0];
