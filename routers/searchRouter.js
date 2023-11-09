@@ -7,35 +7,29 @@ router.get("/:text", async (req, res) => {
 
   try {
     const results = await db_contents.search(text);
-
-    if (results) {
-      const resultsWithParentIds = await Promise.all(
-        results.map(async (result) => {
-          const parent = await db_contents.getCommentReplies(result.content_id);
-          if (parent) {
-            result.parent_id = parent;
-          }
-          return result;
-        })
-      );
-      console.log("Parents stuff " + resultsWithParentIds[0].parent_id);
-
-      res.send(resultsWithParentIds);
-    } else {
-      res.status(404).send({
-        message: "Not found"
-      });
-    }
+    res.send(results);
   } catch (error) {
     console.error(error);
     res.status(500).send({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 });
 
+router.get("/getParent/:content_id", async (req, res) => {
+  const content_id = req.params.content_id;
+
+  try {
+    const parent = await db_contents.getCommentReplies(content_id);
+    if (parent) {
+      res.send(parent);
+    } else {
+      res.status(404).send(null);
+    }
+  } catch (error) {
+    console.error("Error while getting parent:", error);
+    res.status(500).send(null);
+  }
+});
+
 module.exports = router;
-
-
-
-
