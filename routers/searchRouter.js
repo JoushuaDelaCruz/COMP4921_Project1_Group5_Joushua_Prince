@@ -6,11 +6,9 @@ router.get("/:text", async (req, res) => {
   const text = req.params.text;
 
   try {
-    // First, perform the search
     const results = await db_contents.search(text);
 
     if (results) {
-      // If search results are found, fetch parent IDs for each result
       const resultsWithParentIds = await Promise.all(
         results.map(async (result) => {
           const parent = await db_contents.getCommentReplies(result.content_id);
@@ -37,3 +35,7 @@ router.get("/:text", async (req, res) => {
 });
 
 module.exports = router;
+
+
+
+
