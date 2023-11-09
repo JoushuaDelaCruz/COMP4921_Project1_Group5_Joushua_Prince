@@ -25,11 +25,11 @@ const getPost = async (post_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
   (
-      SELECT content_id, user_id, content, date_created, content_id AS parent
+      SELECT content_id, user_id, content, date_created, parent_id, content_id AS parent
       FROM contents 
       WHERE content_id = :post_id
       UNION
-      SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
+      SELECT c.content_id, c.user_id, c.content, c.date_created, c.parent_id, cte.parent
       FROM cte_posts cte
       JOIN contents c ON cte.content_id = c.parent_id
   ), vote_counts AS
@@ -52,6 +52,7 @@ const getPost = async (post_id) => {
   JOIN users USING (user_id)
   LEFT JOIN posts p ON p.content_id = cte.parent
   LEFT JOIN vote_counts v ON cte.content_id = v.content_id
+  WHERE cte.parent_id IS NULL
   GROUP BY cte.parent
   ORDER BY date_created DESC;  
   `;
@@ -71,11 +72,11 @@ const getPostUserAuth = async (post_id, user_id) => {
   const query = `
   WITH RECURSIVE cte_posts AS 
   (
-      SELECT content_id, user_id, content, date_created, content_id AS parent
+      SELECT content_id, user_id, content, date_created, parent_id, content_id AS parent
       FROM contents 
       WHERE content_id = :post_id
       UNION
-      SELECT c.content_id, c.user_id, c.content, c.date_created, cte.parent
+      SELECT c.content_id, c.user_id, c.content, c.date_created, c.parent_id, cte.parent
       FROM cte_posts cte
       JOIN contents c ON cte.content_id = c.parent_id
   ), vote_counts AS
@@ -104,6 +105,7 @@ const getPostUserAuth = async (post_id, user_id) => {
   LEFT JOIN vote_counts vc ON cte.content_id = vc.content_id
   LEFT JOIN votes v ON cte.content_id = v.content_id AND v.user_id = :user_id
   LEFT JOIN favourites f ON cte.content_id = f.content_id AND f.user_id = :user_id
+  WHERE cte.parent_id IS NULL
   GROUP BY cte.parent
   ORDER BY date_created DESC;
   `;
