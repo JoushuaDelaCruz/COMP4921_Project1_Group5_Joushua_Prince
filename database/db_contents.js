@@ -194,15 +194,12 @@ const search = async (keyword) => {
   }
 };
 
-const getCommentReplies = async (comment_id) => {
+const getParentID = async (comment_id) => {
   const query = `
     WITH RECURSIVE cte_comments AS (
       SELECT 
         content_id,
-        user_id,
-        content,
-        parent_id,
-        date_created
+        parent_id
       FROM contents
       WHERE content_id = :comment_id -- Specify the content_id of the reply
   
@@ -210,14 +207,11 @@ const getCommentReplies = async (comment_id) => {
   
       SELECT
         c.content_id,
-        c.user_id,
-        c.content,
-        c.parent_id,
-        c.date_created
+        c.parent_id
       FROM cte_comments cte
       JOIN contents c ON cte.parent_id = c.content_id
     )
-    SELECT *
+    SELECT content_id
     FROM cte_comments
     WHERE parent_id IS NULL; -- Filter to retrieve the main parent comment
   `;
@@ -227,7 +221,7 @@ const getCommentReplies = async (comment_id) => {
 
   try {
     const replies = await database.query(query, params);
-    return replies[0][0].content_id;
+    return replies[0][0];
   } catch (err) {
     console.log(err);
     return null;
@@ -242,5 +236,5 @@ module.exports = {
   search,
   deleteContent,
   setRemoved,
-  getCommentReplies,
+  getParentID,
 };

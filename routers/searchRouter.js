@@ -20,7 +20,7 @@ router.get("/getParent/:content_id", async (req, res) => {
   const content_id = req.params.content_id;
 
   try {
-    const parent = await db_contents.getCommentReplies(content_id);
+    const parent = await db_contents.getParentID(content_id);
     if (parent) {
       res.send(parent);
     } else {
