@@ -21,6 +21,10 @@ router.post("/toggle", async (req, res) => {
       return;
     }
     const success = await db_votes.toggle(vote_id, vote_orig);
+    if (success === undefined) {
+      res.status(403).send(null);
+      return;
+    }
     res.send(success);
   });
 });
@@ -48,6 +52,10 @@ router.post("/record", async (req, res) => {
       session.user,
       is_up_vote
     );
+    if (!insert_id) {
+      res.status(403).send(null);
+      return;
+    }
     res.send({ vote_id: insert_id });
   });
 });

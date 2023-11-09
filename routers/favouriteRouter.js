@@ -21,6 +21,10 @@ router.post("/addFavourite", async (req, res) => {
     const user_id = session.user;
     const content_id = req.body.data.content_id;
     const success = await db_favourites.addFavourite(user_id, content_id);
+    if (!success) {
+      res.status(403).send(false);
+      return;
+    }
     res.send(success);
   });
 });
@@ -44,6 +48,10 @@ router.post("/deleteFavourite", async (req, res) => {
     const user_id = session.user;
     const content_id = req.body.data.content_id;
     const success = await db_favourites.deleteFavourite(user_id, content_id);
+    if (!success) {
+      res.status(403).send(false);
+      return;
+    }
     res.send(success);
   });
 });

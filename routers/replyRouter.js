@@ -5,6 +5,10 @@ const db_contents = include("database/db_contents");
 router.get("/:post_id", async (req, res) => {
   const post_id = req.params.post_id;
   const replies = await db_contents.getPostReplies(post_id);
+  if (!replies) {
+    res.status(404).send(null);
+    return;
+  }
   res.send(replies);
 });
 
@@ -27,6 +31,10 @@ router.get("/:post_id/:session_id", async (req, res) => {
     }
     const user_id = session.user;
     const replies = await db_contents.getPostRepliesUserAuth(post_id, user_id);
+    if (!replies) {
+      res.status(404).send(null);
+      return;
+    }
     res.send(replies);
     return;
   });
@@ -70,6 +78,5 @@ router.post("/create", async (req, res) => {
     return;
   });
 });
-
 
 module.exports = router;

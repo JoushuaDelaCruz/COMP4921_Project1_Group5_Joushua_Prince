@@ -6,7 +6,7 @@ router.get("/:username", async (req, res) => {
   const username = req.params.username;
   const user = await db_users.getProfile(username);
   if (!user) {
-    res.status(500).send();
+    res.status(404).send();
     return;
   }
   res.send(user);
@@ -76,7 +76,6 @@ router.get("/bookmarks/:session", async (req, res) => {
     }
     const user_id = session.user;
     const bookmarks = await db_users.getBookmarks(user_id);
-    console.log(bookmarks);
     res.send(bookmarks);
     return;
   });
